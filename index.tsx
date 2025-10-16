@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
 // --- Consolidated Types ---
 enum Page {
@@ -658,8 +658,9 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Explicitly cast pair.checkin to string to resolve potential type inference issues.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    // FIX: Corrected an issue where an argument was being inferred as `unknown`.
+    // The `pair.checkin` property is already a string, so it can be used directly without the `String()` wrapper which may have confused the type checker.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
