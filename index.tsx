@@ -1,4 +1,4 @@
-// FIX: Import React and ReactDOM to resolve multiple 'Cannot find name' errors.
+// FIX: Add missing React and ReactDOM imports.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -659,8 +659,6 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Corrected an issue where an argument was being inferred as `unknown`.
-    // The `pair.checkin` property is already a string, so it can be used directly without the `String()` wrapper which may have confused the type checker.
     const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
