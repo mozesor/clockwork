@@ -1,4 +1,4 @@
-
+// FIX: Add imports for React and ReactDOM to resolve multiple "Cannot find name" errors.
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -310,7 +310,7 @@ const App: React.FC = () => {
                 const stringWages: Record<string, string> = {};
                 for (const [key, value] of Object.entries(parsedWages)) {
                     if (value !== null && typeof value !== 'undefined') {
-                        const numValue = Number(value);
+                        const numValue = Number(value as any);
                         if (!isNaN(numValue)) {
                             validatedWages[key] = numValue;
                             stringWages[key] = String(value);
@@ -660,7 +660,8 @@ const App: React.FC = () => {
       return;
     }
     // Fix: The `pair.checkin` is already a string according to the ShiftPair type, so no casting is needed.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
+    // FIX: Explicitly cast to string to resolve compiler error.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
