@@ -506,10 +506,10 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // Fix: The `pair.checkin` is already a string according to the ShiftPair type, so no casting is needed.
-    // FIX: The `pair.checkin` value is already a string, so the `String()` wrapper is redundant and
-    // may be causing a type inference issue with the TypeScript compiler.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
+    // FIX: Explicitly cast `pair.checkin` to a string to resolve an "unknown" type error.
+    // Although the `ShiftPair` type defines `checkin` as a string, TypeScript's inference
+    // seems to be failing in this context, so an assertion ensures the type is correct for `handleAction`.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin as string });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
