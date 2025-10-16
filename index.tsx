@@ -1,4 +1,4 @@
-// FIX: Add missing React and ReactDOM imports.
+// --- Fix: Import React and ReactDOM ---
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -313,7 +313,8 @@ const App: React.FC = () => {
                         const numValue = Number(value as any);
                         if (!isNaN(numValue)) {
                             validatedWages[key] = numValue;
-                            stringWages[key] = String(value);
+                            // --- Fix: Explicitly cast 'value' from 'unknown' to 'any' to satisfy strict type checking.
+                            stringWages[key] = String(value as any);
                         }
                     }
                 }
