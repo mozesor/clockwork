@@ -1,0 +1,5 @@
+{
+  "name": "Rafting Bar Attendance Tracker",
+  "description": "An employee attendance tracking application for Rafting Bar. It allows employees to check in and out, and provides detailed reports for administrators. The app syncs data with a Google Sheet for persistence and multi-device access.",
+  "requestFramePermissions": []
+}
