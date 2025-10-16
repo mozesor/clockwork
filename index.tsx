@@ -1,4 +1,4 @@
-// --- Fix: Import React and ReactDOM ---
+// FIX: Import React and ReactDOM to make them available in the file.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -1270,13 +1270,13 @@ const App: React.FC = () => {
 
     if (currentUser) {
       return (
-        <>
+        <React.Fragment>
           <main className="container">
             {alertComponent}
             {renderCurrentPage()}
           </main>
           {renderNavigation()}
-        </>
+        </React.Fragment>
       );
     } else {
       if (employees.length > 0) {
