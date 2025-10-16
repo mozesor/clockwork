@@ -1,8 +1,7 @@
-// FIX: (L:1, L:223, L:1315, L:1317, L:1319) Add imports for React and ReactDOM to fix multiple 'Cannot find name' errors.
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 
-// --- START: types.ts ---
+// --- Consolidated Types ---
 enum Page {
   Main = 'main',
   Employees = 'employees',
@@ -24,9 +23,9 @@ type ActionType = 'checkin' | 'checkout' | 'employee_added' | 'admin_password_ch
 interface AttendanceLog {
   employee: string;
   action: ActionType;
-  timestamp: string;
-  date: string;
-  time: string;
+  timestamp: string; // ISO format
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM:SS
   source: string;
 }
 
@@ -38,7 +37,7 @@ interface DailyLog {
 interface ShiftPair {
   checkin: string;
   checkout: string;
-  duration: number;
+  duration: number; // in hours
 }
 
 interface DailySummary {
@@ -51,10 +50,8 @@ interface DailySummary {
 }
 
 type AttendanceData = Map<string, Map<string, DailySummary>>;
-// --- END: types.ts ---
 
-
-// --- START: services/googleSheetsService.ts ---
+// --- Consolidated Google Sheets Service ---
 const API_KEY = 'AIzaSyB8MgwEZ7hqS_hiZqTcwzODheuwdBA55j4';
 const SHEET_ID = '1SNSdRdJy-vP--spyKmVwDbnaz808KEwTYSKiLreFn0w';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_UMxeN_-dYeiR4xQa4HzT9ogZPv8BeYkRuUg0BOeEobOQZJVvj7gZU-2U_5LrxEtK/exec';
@@ -189,10 +186,8 @@ const recordToSheet = async (employee: string, action: string, timestamp: string
         return false;
     }
 };
-// --- END: services/googleSheetsService.ts ---
 
-
-// --- START: App.tsx ---
+// --- Consolidated App Component ---
 const formatTime = (isoString: string | null | undefined): string => {
   if (!isoString) return '-';
   try {
@@ -214,7 +209,7 @@ type ReportViewType = 'day' | 'week' | 'month';
 const getWeekRange = (date: Date) => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0); 
-    const day = d.getDay();
+    const day = d.getDay(); // Sunday - 0
     const diff = d.getDate() - day;
     const startOfWeek = new Date(d.setDate(diff));
     const endOfWeek = new Date(startOfWeek);
@@ -661,9 +656,8 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: (L:712) Argument of type 'unknown' is not assignable to parameter of type 'string'.
-    // Removed the unnecessary type assertion `as string`. The property `pair.checkin` is already a string.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
+    // FIX: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
@@ -1308,8 +1302,6 @@ const App: React.FC = () => {
     </>
   );
 };
-// --- END: App.tsx ---
-
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
