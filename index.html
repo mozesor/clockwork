@@ -580,21 +580,18 @@
   <script type="importmap">
 {
   "imports": {
-    "react": "https://unpkg.com/react@18/umd/react.development.js",
-    "react-dom/client": "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
 </script>
-  <!-- Add Babel to transpile JSX for the browser -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>
-    <!-- Tell Babel to transpile this script -->
-    <script type="text/babel" data-type="module" src="index.tsx"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" data-type="module" src="./index.tsx"></script>
   <script type="module" src="/index.tsx"></script>
 </body>
 </html>

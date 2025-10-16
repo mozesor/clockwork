@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Page, SyncStatus, AttendanceData, DailySummary, DailyLog, ActionType, ShiftPair } from './types.ts';
 import { fetchAndProcessData, recordToSheet, RawLogData } from './services/googleSheetsService.ts';
@@ -507,7 +506,8 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // The explicit type on `pair` ensures `pair.checkin` is a string, so we can remove the redundant String() cast.
+    // FIX: The 'pair' parameter is explicitly typed as ShiftPair, ensuring `pair.checkin` is a string.
+    // The previous String() wrapper was redundant and causing a type error.
     const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
