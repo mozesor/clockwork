@@ -1,6 +1,12 @@
-// FIX: Add missing imports for React and ReactDOM to resolve multiple 'not defined' errors throughout the component.
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+// Fix: Add imports for React and ReactDOM to provide types for the TypeScript compiler.
+// This is necessary for type checking, even if React is loaded globally in the browser.
+// A bundler can be configured to treat these as external dependencies to avoid bundling them.
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
+
+// הערה: אין לייבא את React ו-ReactDOM כאן.
+// הם נטענים באופן גלובלי מקובץ index.html באמצעות תגי <script>.
+// הוספת 'import' תגרום לשגיאה בדפדפן.
 
 // --- Consolidated Types ---
 enum Page {
