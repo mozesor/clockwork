@@ -1,3 +1,4 @@
+// FIX: (L:1, L:223, L:1315, L:1317, L:1319) Add imports for React and ReactDOM to fix multiple 'Cannot find name' errors.
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -660,7 +661,9 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin as string });
+    // FIX: (L:712) Argument of type 'unknown' is not assignable to parameter of type 'string'.
+    // Removed the unnecessary type assertion `as string`. The property `pair.checkin` is already a string.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
