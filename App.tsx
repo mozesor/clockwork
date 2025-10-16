@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Page, SyncStatus, AttendanceData, DailySummary, DailyLog, ActionType, ShiftPair } from './types';
-import { fetchAndProcessData, recordToSheet, RawLogData } from './services/googleSheetsService';
+import { Page, SyncStatus, AttendanceData, DailySummary, DailyLog, ActionType, ShiftPair } from './types.ts';
+import { fetchAndProcessData, recordToSheet, RawLogData } from './services/googleSheetsService.ts';
 
 // Helper to format time from ISO string
 const formatTime = (isoString: string | null | undefined): string => {
@@ -506,9 +507,8 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Using String() to work around a TypeScript inference issue
-    // where `pair.checkin` can be incorrectly typed as 'unknown'.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    // The explicit type on `pair` ensures `pair.checkin` is a string, so we can remove the redundant String() cast.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();

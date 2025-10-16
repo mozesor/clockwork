@@ -1,4 +1,4 @@
-import type { DailyLog } from '../types';
+import type { DailyLog } from '../types.ts';
 
 // Hardcode API Key to resolve environment variable issues in the browser.
 // This key was present in the original version of the application.
