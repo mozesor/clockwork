@@ -507,8 +507,9 @@ const App: React.FC = () => {
       return;
     }
     // Fix: The `pair.checkin` is already a string according to the ShiftPair type, so no casting is needed.
-    // FIX: Explicitly cast to string to resolve confusing compiler error.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    // FIX: The `pair.checkin` value is already a string, so the `String()` wrapper is redundant and
+    // may be causing a type inference issue with the TypeScript compiler.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();

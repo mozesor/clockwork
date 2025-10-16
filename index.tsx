@@ -1,6 +1,8 @@
-// FIX: Add imports for React and ReactDOM to resolve multiple "Cannot find name" errors.
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+// FIX: Add imports for React and ReactDOM to provide type information to TypeScript, resolving multiple 'Cannot find name' errors.
+import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+// React and ReactDOM are loaded globally via script tags in index.html
 
 // --- Consolidated Types ---
 enum Page {
@@ -221,45 +223,45 @@ const getWeekRange = (date: Date) => {
 };
 
 const App: React.FC = () => {
-  const [page, setPage] = useState<Page>(Page.Main);
-  const [rawLogData, setRawLogData] = useState<RawLogData>(new Map());
-  const [attendanceData, setAttendanceData] = useState<AttendanceData>(new Map());
-  const [employees, setEmployees] = useState<string[]>([]);
-  const [adminPassword, setAdminPassword] = useState<string>('1234');
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>(SyncStatus.Connecting);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [currentUser, setCurrentUser] = useState<{ name: string; isAdmin: boolean } | null>(null);
-  const [alert, setAlert] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const isUpdating = useRef(false);
-  const [reportsSelectedEmployee, setReportsSelectedEmployee] = useState<string>('');
-  const [reportDate, setReportDate] = useState(new Date());
-  const [calculationMethod, setCalculationMethod] = useState<CalculationMethod>('firstLast');
-  const [reportViewType, setReportViewType] = useState<ReportViewType>('month');
-  const [newEmployeeName, setNewEmployeeName] = useState('');
-  const [removeEmployeeSelect, setRemoveEmployeeSelect] = useState('');
-  const [newAdminPassword, setNewAdminPassword] = useState('');
-  const [identifySelect, setIdentifySelect] = useState('');
-  const [loginPasswordInput, setLoginPasswordInput] = useState('');
-  const [employeeWages, setEmployeeWages] = useState<Record<string, number>>({});
-  const [tempWages, setTempWages] = useState<Record<string, string>>({});
-  const [retroEmployee, setRetroEmployee] = useState('');
-  const [retroDate, setRetroDate] = useState(new Date().toISOString().split('T')[0]);
-  const [retroCheckinTime, setRetroCheckinTime] = useState('');
-  const [retroCheckoutTime, setRetroCheckoutTime] = useState('');
+  const [page, setPage] = React.useState<Page>(Page.Main);
+  const [rawLogData, setRawLogData] = React.useState<RawLogData>(new Map());
+  const [attendanceData, setAttendanceData] = React.useState<AttendanceData>(new Map());
+  const [employees, setEmployees] = React.useState<string[]>([]);
+  const [adminPassword, setAdminPassword] = React.useState<string>('1234');
+  const [syncStatus, setSyncStatus] = React.useState<SyncStatus>(SyncStatus.Connecting);
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+  const [currentUser, setCurrentUser] = React.useState<{ name: string; isAdmin: boolean } | null>(null);
+  const [alert, setAlert] = React.useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const isUpdating = React.useRef(false);
+  const [reportsSelectedEmployee, setReportsSelectedEmployee] = React.useState<string>('');
+  const [reportDate, setReportDate] = React.useState(new Date());
+  const [calculationMethod, setCalculationMethod] = React.useState<CalculationMethod>('firstLast');
+  const [reportViewType, setReportViewType] = React.useState<ReportViewType>('month');
+  const [newEmployeeName, setNewEmployeeName] = React.useState('');
+  const [removeEmployeeSelect, setRemoveEmployeeSelect] = React.useState('');
+  const [newAdminPassword, setNewAdminPassword] = React.useState('');
+  const [identifySelect, setIdentifySelect] = React.useState('');
+  const [loginPasswordInput, setLoginPasswordInput] = React.useState('');
+  const [employeeWages, setEmployeeWages] = React.useState<Record<string, number>>({});
+  const [tempWages, setTempWages] = React.useState<Record<string, string>>({});
+  const [retroEmployee, setRetroEmployee] = React.useState('');
+  const [retroDate, setRetroDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [retroCheckinTime, setRetroCheckinTime] = React.useState('');
+  const [retroCheckoutTime, setRetroCheckoutTime] = React.useState('');
 
-  const showAlert = useCallback((message: string, type: 'success' | 'error') => {
+  const showAlert = React.useCallback((message: string, type: 'success' | 'error') => {
     setAlert({ message, type });
     setTimeout(() => setAlert(null), 4000);
   }, []);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = React.useCallback(() => {
     localStorage.removeItem('currentUser');
     setCurrentUser(null);
     setPage(Page.Main);
     showAlert('התנתקת בהצלחה.', 'success');
   }, [showAlert]);
 
-  const backgroundSync = useCallback(async () => {
+  const backgroundSync = React.useCallback(async () => {
       if (isUpdating.current) return;
       setSyncStatus(SyncStatus.Syncing);
       try {
@@ -274,7 +276,7 @@ const App: React.FC = () => {
       }
   }, []);
   
-  const loadData = useCallback(async () => {
+  const loadData = React.useCallback(async () => {
     setSyncStatus(SyncStatus.Connecting);
     try {
       const { rawLogData: data, employees: empList, adminPassword: pw } = await fetchAndProcessData();
@@ -291,7 +293,7 @@ const App: React.FC = () => {
     }
   }, [showAlert]);
   
-  useEffect(() => {
+  React.useEffect(() => {
     try {
         const savedUser = localStorage.getItem('currentUser');
         if (savedUser) {
@@ -326,7 +328,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     loadData();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     const syncInterval = setInterval(() => backgroundSync(), 120000);
@@ -336,14 +338,14 @@ const App: React.FC = () => {
     };
   }, [loadData, backgroundSync]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (currentUser && !currentUser.isAdmin && employees.length > 0 && !employees.includes(currentUser.name)) {
       showAlert(`העובד "${currentUser.name}" הוסר מהמערכת.`, 'error');
       handleLogout();
     }
   }, [currentUser, employees, showAlert, handleLogout]);
 
-  useEffect(() => {
+  React.useEffect(() => {
       if (currentUser) {
         if (currentUser.isAdmin) {
           if (page === Page.MyReports) setPage(Page.Employees);
@@ -356,7 +358,7 @@ const App: React.FC = () => {
       }
     }, [page, currentUser]);
   
-  useEffect(() => {
+  React.useEffect(() => {
       if (employees.length > 0) {
           const defaultEmployee = employees[0];
           const setDefault = (current: string) => (!current || !employees.includes(current)) ? defaultEmployee : current;
@@ -371,7 +373,7 @@ const App: React.FC = () => {
       }
   }, [employees]);
   
-  const calculateHoursAndPairs = useCallback((logs: DailyLog[]): { totalHours: number, pairs: ShiftPair[] } => {
+  const calculateHoursAndPairs = React.useCallback((logs: DailyLog[]): { totalHours: number, pairs: ShiftPair[] } => {
     const sortedLogs = [...logs]
       .filter(l => l.action === 'checkin' || l.action === 'checkout')
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -402,7 +404,7 @@ const App: React.FC = () => {
     return { totalHours: totalMs / (1000 * 60 * 60), pairs: pairs };
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       const newAttendanceData: AttendanceData = new Map();
       for (const [employee, dates] of rawLogData.entries()) {
@@ -442,7 +444,7 @@ const App: React.FC = () => {
     }
   }, [rawLogData, calculationMethod, calculateHoursAndPairs, showAlert]);
 
-    const reportDataForSelectedEmployee = useMemo(() => {
+    const reportDataForSelectedEmployee = React.useMemo(() => {
         const employeeData = attendanceData.get(reportsSelectedEmployee);
         if (!employeeData) return [];
         
@@ -477,7 +479,7 @@ const App: React.FC = () => {
         return daysInRange.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [attendanceData, reportsSelectedEmployee, reportViewType, reportDate]);
 
-    const reportDataForCurrentUser = useMemo(() => {
+    const reportDataForCurrentUser = React.useMemo(() => {
         if (!currentUser) return [];
         const employeeData = attendanceData.get(currentUser.name);
         if (!employeeData) return [];
@@ -660,8 +662,9 @@ const App: React.FC = () => {
       return;
     }
     // Fix: The `pair.checkin` is already a string according to the ShiftPair type, so no casting is needed.
-    // FIX: Explicitly cast to string to resolve compiler error.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    // FIX: The `pair.checkin` value is already a string, so the `String()` wrapper is redundant and
+    // may be causing a type inference issue with the TypeScript compiler.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
