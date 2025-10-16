@@ -1,8 +1,5 @@
-// Fix: Add imports for React and ReactDOM to provide types for the TypeScript compiler.
-// This is necessary for type checking, even if React is loaded globally in the browser.
-// A bundler can be configured to treat these as external dependencies to avoid bundling them.
-import * as React from 'react';
-import * as ReactDOM from 'react-dom/client';
+/// <reference types="react" />
+/// <reference types="react-dom" />
 
 // הערה: אין לייבא את React ו-ReactDOM כאן.
 // הם נטענים באופן גלובלי מקובץ index.html באמצעות תגי <script>.
