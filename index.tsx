@@ -1,4 +1,4 @@
-// FIX: Import React and ReactDOM to make them available in the file.
+// FIX: Add missing imports for React and ReactDOM to resolve multiple 'not defined' errors throughout the component.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
