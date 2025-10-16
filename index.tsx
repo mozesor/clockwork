@@ -1,8 +1,5 @@
-// React and ReactDOM are loaded globally via script tags in index.html.
-// The import statements were removed to fix a "Cannot use import statement outside a module" syntax error.
-// FIX: Add React and ReactDOM imports to resolve "Cannot find name" errors in a TSX file.
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
 
 // --- Consolidated Types ---
 enum Page {
@@ -661,10 +658,8 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Explicitly cast `pair.checkin` to a string to resolve an "unknown" type error.
-    // Although the `ShiftPair` type defines `checkin` as a string, TypeScript's inference
-    // seems to be failing in this context, so an assertion ensures the type is correct for `handleAction`.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin as string });
+    // FIX: Explicitly cast pair.checkin to string to resolve potential type inference issues.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
