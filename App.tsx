@@ -506,9 +506,9 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Using String() to work around a TypeScript inference issue
+    // FIX: Using a type assertion to work around a TypeScript inference issue
     // where `pair.checkin` can be incorrectly typed as 'unknown'.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin as string });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
