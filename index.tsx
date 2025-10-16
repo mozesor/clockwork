@@ -1,3 +1,4 @@
+// FIX: Import React and ReactDOM to resolve multiple 'Cannot find name' errors.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -1299,10 +1300,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
+    <React.Fragment>
       {renderHeader()}
       {renderAppContent()}
-    </>
+    </React.Fragment>
   );
 };
 
