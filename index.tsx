@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -120,15 +121,17 @@ const fetchAndProcessData = async (): Promise<{
               
               employeeSet.add(employee);
               
-              if (!rawLogData.has(employee)) {
-                  rawLogData.set(employee, new Map());
+              let employeeData = rawLogData.get(employee);
+              if (!employeeData) {
+                  employeeData = new Map<string, DailyLog[]>();
+                  rawLogData.set(employee, employeeData);
               }
-              const employeeData = rawLogData.get(employee)!;
 
-              if (!employeeData.has(date)) {
-                  employeeData.set(date, []);
+              let dateLogs = employeeData.get(date);
+              if (!dateLogs) {
+                  dateLogs = [];
+                  employeeData.set(date, dateLogs);
               }
-              const dateLogs = employeeData.get(date)!;
               dateLogs.push({ action, timestamp });
               break;
               
@@ -656,8 +659,8 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    // Fix: The `pair.checkin` is already a string according to the ShiftPair type, so no casting is needed.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();

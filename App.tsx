@@ -506,8 +506,8 @@ const App: React.FC = () => {
     if (!window.confirm(`האם לבטל את המשמרת מ-${formatTime(pair.checkin)} עד ${formatTime(pair.checkout)}?`)) {
       return;
     }
-    // FIX: Argument of type 'unknown' is not assignable to parameter of type 'string'.
-    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: String(pair.checkin) });
+    // Fix: The `pair.checkin` is already a string according to the ShiftPair type, so no casting is needed.
+    const success = await handleAction('checkout', reportsSelectedEmployee, { timestamp: pair.checkin });
     if (success) {
       showAlert('המשמרת בוטלה בהצלחה.', 'success');
       await backgroundSync();
@@ -919,4 +919,244 @@ const App: React.FC = () => {
              <div className="form-group">
                 <label>שיטת חישוב שעות:</label>
                 <div className="toggle-switch">
-                    <button className={calculationMethod === 'first
+                    <button className={calculationMethod === 'firstLast' ? 'active' : ''} onClick={() => setCalculationMethod('firstLast')}>כניסה-יציאה</button>
+                    <button className={calculationMethod === 'pairs' ? 'active' : ''} onClick={() => setCalculationMethod('pairs')}>זוגות</button>
+                </div>
+            </div>
+            {renderReportTable(reportsSelectedEmployee, reportDataForSelectedEmployee)}
+        </section>
+    );
+};
+  
+  const renderMyReportsPage = () => {
+      const handleDateChange = (offset: number) => {
+          setReportDate(prevDate => {
+              const newDate = new Date(prevDate);
+              if (reportViewType === 'day') newDate.setDate(newDate.getDate() + offset);
+              else if (reportViewType === 'week') newDate.setDate(newDate.getDate() + (offset * 7));
+              else newDate.setMonth(newDate.getMonth() + offset);
+              return newDate;
+          });
+      };
+      const getNavigatorTitle = () => {
+          if (reportViewType === 'day') return reportDate.toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+          if (reportViewType === 'week') {
+              const { startOfWeek, endOfWeek } = getWeekRange(reportDate);
+              return `${startOfWeek.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' })} - ${endOfWeek.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' })}, ${endOfWeek.getFullYear()}`;
+          }
+          return reportDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
+      };
+      const isNextButtonDisabled = () => {
+          const today = new Date(); today.setHours(0,0,0,0);
+          if (reportViewType === 'day') { const d = new Date(reportDate); d.setHours(0,0,0,0); return d >= today; }
+          if (reportViewType === 'week') return getWeekRange(reportDate).endOfWeek >= today;
+          return reportDate.getFullYear() === today.getFullYear() && reportDate.getMonth() === today.getMonth();
+      };
+      return (
+          <section className="card">
+              <div className="card-header-flex">
+                  <h2 style={{ margin: 0, border: 'none' }}>👤 הזמן שלי: {currentUser?.name}</h2>
+              </div>
+              <div className="form-group">
+                  <label>תצוגה לפי:</label>
+                  <div className="toggle-switch">
+                      <button className={reportViewType === 'day' ? 'active' : ''} onClick={() => setReportViewType('day')}>יום</button>
+                      <button className={reportViewType === 'week' ? 'active' : ''} onClick={() => setReportViewType('week')}>שבוע</button>
+                      <button className={reportViewType === 'month' ? 'active' : ''} onClick={() => setReportViewType('month')}>חודש</button>
+                  </div>
+              </div>
+              <div className="month-navigator">
+                  <button onClick={() => handleDateChange(-1)}>‹</button>
+                  <h3>{getNavigatorTitle()}</h3>
+                  <button onClick={() => handleDateChange(1)} disabled={isNextButtonDisabled()}>›</button>
+              </div>
+              <div className="form-group">
+                  <label>שיטת חישוב שעות:</label>
+                  <div className="toggle-switch">
+                      <button className={calculationMethod === 'firstLast' ? 'active' : ''} onClick={() => setCalculationMethod('firstLast')}>כניסה-יציאה</button>
+                      <button className={calculationMethod === 'pairs' ? 'active' : ''} onClick={() => setCalculationMethod('pairs')}>זוגות</button>
+                  </div>
+              </div>
+              {renderReportTable(currentUser?.name || null, reportDataForCurrentUser)}
+          </section>
+      );
+  };
+
+  const renderAdminPage = () => {
+      return (
+          <section>
+              <div className="card">
+                  <div className="card-header-flex">
+                      <h2 style={{ margin: 0, border: 'none' }}>⚙️ ניהול</h2>
+                  </div>
+              </div>
+               <div className="card">
+                  <h2>ניהול שכר עובדים</h2>
+                  {employees.map(emp => (
+                      <div className="form-group" key={emp}>
+                          <label htmlFor={`wage-${emp}`}>{emp}:</label>
+                          <input
+                              id={`wage-${emp}`}
+                              type="number"
+                              min="0"
+                              step="0.1"
+                              placeholder="שכר שעתי (₪)"
+                              value={tempWages[emp] || ''}
+                              onChange={e => handleWageChange(emp, e.target.value)}
+                          />
+                      </div>
+                  ))}
+                  <button className="btn btn-admin" style={{ width: '100%' }} onClick={handleSaveWages}>שמור שינויים</button>
+              </div>
+               <div className="card">
+                    <h2>הוספת משמרת ידנית</h2>
+                    <div className="form-group">
+                      <label>עובד:</label>
+                      <select value={retroEmployee} onChange={e => setRetroEmployee(e.target.value)}>{employees.map(e => <option key={e} value={e}>{e}</option>)}</select>
+                    </div>
+                     <div className="form-group">
+                        <label>תאריך:</label>
+                        <div className="input-with-icon">
+                          <input type="date" value={retroDate} onChange={e => setRetroDate(e.target.value)} />
+                          <span className="input-icon">📅</span>
+                        </div>
+                    </div>
+                    <div className="input-group" style={{gap: '15px'}}>
+                      <div className="form-group" style={{flex: 1, marginBottom: 0}}>
+                          <label>שעת כניסה:</label>
+                           <div className="input-with-icon">
+                            <input type="time" value={retroCheckinTime} onChange={e => setRetroCheckinTime(e.target.value)} />
+                            <span className="input-icon">⏰</span>
+                          </div>
+                      </div>
+                      <div className="form-group" style={{flex: 1, marginBottom: 0}}>
+                          <label>שעת יציאה:</label>
+                          <div className="input-with-icon">
+                            <input type="time" value={retroCheckoutTime} onChange={e => setRetroCheckoutTime(e.target.value)} />
+                            <span className="input-icon">⏰</span>
+                          </div>
+                      </div>
+                    </div>
+                    <button className="btn btn-admin" style={{ width: '100%', marginTop: '20px' }} onClick={handleAddRetroShift}>➕ הוסף משמרת</button>
+               </div>
+              <div className="card">
+                  <h2>ניהול עובדים</h2>
+                  <div className="form-group">
+                      <label>הוסף עובד חדש:</label>
+                      <input type="text" placeholder="שם העובד החדש" value={newEmployeeName} onChange={e => setNewEmployeeName(e.target.value)} />
+                  </div>
+                  <button className="btn btn-admin" style={{ width: '100%', marginBottom: '15px' }} onClick={handleAddEmployee}>➕ הוסף עובד</button>
+                   <div className="form-group">
+                      <label>הסר עובד:</label>
+                      <select value={removeEmployeeSelect} onChange={e => setRemoveEmployeeSelect(e.target.value)}>{employees.map(e => <option key={e} value={e}>{e}</option>)}</select>
+                  </div>
+                  <button className="btn btn-checkout" style={{ width: '100%' }} onClick={handleRemoveEmployee}>🗑️ הסר עובד</button>
+              </div>
+              <div className="card">
+                   <h2>מערכת</h2>
+                  <button className="btn btn-admin" style={{ width: '100%', marginBottom: '15px' }} onClick={() => backgroundSync()}>⚡ סנכרון ידני</button>
+                  <div className="form-group">
+                      <label>שנה קוד גישה:</label>
+                      <input type="password" placeholder="קוד חדש (4-6 ספרות)" maxLength={6} value={newAdminPassword} onChange={e => setNewAdminPassword(e.target.value)} />
+                  </div>
+                  <button className="btn btn-admin" style={{ width: '100%' }} onClick={handleChangeAdminPassword}>🔑 שנה קוד</button>
+              </div>
+          </section>
+      );
+  };
+  
+  const renderCurrentPage = () => {
+    switch (page) {
+      case Page.Main:
+        return renderMainPage();
+      case Page.Employees:
+        return renderEmployeesPage();
+      case Page.MyReports:
+        return renderMyReportsPage();
+      case Page.Reports:
+        return renderReportsPage();
+      case Page.Admin:
+        return renderAdminPage();
+      default:
+        return renderMainPage();
+    }
+  };
+
+  const renderIdentifyPage = () => (
+    <section className="card">
+        <h2 className="setup-title">👋 הזדהות</h2>
+        <p className="setup-description">
+            בחר את שמך כדי לרשום נוכחות, או היכנס כמנהל כדי לנהל את המערכת.
+        </p>
+        <div className="form-group">
+            <label htmlFor="identifySelect">אני:</label>
+            <select id="identifySelect" value={identifySelect} onChange={e => setIdentifySelect(e.target.value)}>
+                <option value="" disabled>בחר...</option>
+                {employees.map(e => <option key={e} value={e}>{e}</option>)}
+                <option value="admin">מנהל מערכת</option>
+            </select>
+        </div>
+        {identifySelect === 'admin' && (
+            <div className="form-group">
+                <label>קוד גישה:</label>
+                <input 
+                    type="password" 
+                    placeholder="הזן קוד גישה" 
+                    maxLength={6} 
+                    value={loginPasswordInput} 
+                    onChange={(e) => setLoginPasswordInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                />
+            </div>
+        )}
+        <button 
+            className="btn btn-admin" 
+            style={{ width: '100%' }} 
+            onClick={handleLogin}
+            disabled={!identifySelect}
+        >
+            התחבר
+        </button>
+    </section>
+  );
+
+  const renderAppContent = () => {
+    const alertComponent = alert ? <div className={`alert alert-${alert.type}`}>{alert.message}</div> : null;
+
+    if (currentUser) {
+      return (
+        <>
+          <main className="container">
+            {alertComponent}
+            {renderCurrentPage()}
+          </main>
+          {renderNavigation()}
+        </>
+      );
+    } else {
+      if (employees.length > 0) {
+        return (
+          <main className="container">
+            {alertComponent}
+            {renderIdentifyPage()}
+          </main>
+        );
+      }
+      
+      return (
+        <main className="container">
+          {alertComponent}
+          {syncStatus === 'connecting' && <p style={{textAlign: 'center', color: 'white', paddingTop: '20px'}}>טוען נתונים...</p>}
+           {syncStatus !== 'connecting' && employees.length === 0 && <p style={{textAlign: 'center', color: 'white', paddingTop: '20px'}}>לא נמצאו עובדים במערכת.</p>}
+        </main>
+      );
+    }
+  };
+
+  return (
+    <>
+      {renderHeader()}
+      {renderAppContent()}
+    </>
+  );
+};
